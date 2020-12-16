@@ -70,8 +70,75 @@ class Snake:
                 if i != 0:
                     self.pos_snake[i] = self.pos_snake[i-1]
             self.pos_snake[0] = (new_pos)
+            
+        self.dist_borda()
         
         return False
+    
+    def dist_borda(self):
+        self.leste_borda = self.x_max - self.x_head
+        self.norte_borda = self.y_head
+        self.oeste_borda = self.x_head
+        self.sul_borda = self.y_max - self.y_head
+        
+        if self.leste_borda <= self.norte_borda:
+            self.nordeste_borda = int(1.4142 * self.leste_borda)
+        else:
+            self.nordeste_borda = int(1.4142 * self.norte_borda)
+            
+        if self.norte_borda <= self.oeste_borda:
+            self.noroeste_borda = int(1.4142 * self.norte_borda)
+        else:
+            self.noroeste_borda = int(1.4142 * self.oeste_borda)
+            
+        if self.oeste_borda <= self.sul_borda:
+            self.sudoeste_borda = int(1.4142 * self.oeste_borda)
+        else:
+            self.sudoeste_borda = int(1.4142 * self.sul_borda)
+        
+        if self.sul_borda <= self.leste_borda:
+            self.sudeste_borda = int(1.4142 * self.sul_borda)
+        else:
+            self.sudeste_borda = int(1.4142 * self.leste_borda)
+            
+    def dist_self(self): # por enquanto só tem distância em quatro direções
+        # verificando se ao norte tem corpo dela
+        for i in range(0, self.y_head, 10):
+            if (self.x_head, i) in self.pos_snake:
+                self.norte_self = self.y_head - i
+                break
+            else:
+                self.norte_self = None
+        
+        # verificando se ao leste tem corpo dela
+        for i in range(self.x_head + 10, self.x_max, 10):
+            if (i, self.y_head) in self.pos_snake:
+                self.leste_self = i - self.x_head
+                break
+            else:
+                self.leste_self = None
+                
+        # verificando se ao sul tem corpo dela
+        for i in range(self.y_head + 10, self.y_max, 10):
+            if(self.x_head, i) in self.pos_snake:
+                self.sul_self = i - self.y_head
+                break
+            else:
+                self.sul_self = None
+                
+        # verificando se a oeste tem corpo dela
+        for i in range(0, self.x_head, 10):
+            if(i, self.y_head) in self.pos_snake:
+                self.oeste_self = self.x_head - i
+                break
+            else:
+                self.oeste_self = None
+                
+    #def dist_food(self, pos_food):
+        
+                
+        
+        
         
     block_size = 10
     lenght = 1
@@ -79,7 +146,25 @@ class Snake:
     
     #------------Sensores------------#
     
-    # fazer por distância e angulamento da cabeça até a comida
+    #------------Distância bordas------------#
+    leste_borda = None
+    nordeste_borda = None
+    norte_borda = None
+    noroeste_borda = None
+    oeste_borda = None
+    sudoeste_borda = None
+    sul_borda = None
+    sudeste_borda = None
+    
+    #------------Distância dela mesma------------#
+    leste_self = None
+    norte_self = None
+    oeste_self = None
+    sul_self = None
+    
+    #------------Distância da comida------------#
+    dist_food_abs = None
+    dist_food_graus = None
     
 class Food:
     def __init__(self, color, dim_display):
@@ -147,8 +232,9 @@ while not game_over:
                 
         dis.fill(white)
         
+        
         draw_snake(snake1, dis)
-        show_score(score, blue, dis)
+        show_score(snake1.norte_borda, blue, dis)
         pg.draw.rect(dis, red, (food.pos_x, food.pos_y, food.block_size, food.block_size))
         pg.display.update()
 
